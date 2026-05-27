@@ -2,38 +2,29 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ReactNode } from "react";
 
 interface SplitShellProps {
-  left: ReactNode;
-  right: ReactNode;
-  /** Element rendered absolutely centered, straddling the divide. */
-  center?: ReactNode;
+  left?: ReactNode;
+  right?: ReactNode;
+  children?: ReactNode;
   minHeight?: string;
 }
 
-export function SplitShell({ left, right, center, minHeight = "100vh" }: SplitShellProps) {
+/** Split background (ivory / charcoal) with a hairline cobalt-tinted divider.
+ *  Content is rendered as a single overlay so headings, buttons, and prose
+ *  are never broken across the seam. */
+export function SplitShell({ left, right, children, minHeight = "100vh" }: SplitShellProps) {
   return (
     <div className="relative w-full overflow-hidden" style={{ minHeight }}>
-      <div className="grid grid-cols-2 w-full" style={{ minHeight }}>
-        <section className="relative bg-[var(--ivory)] text-[var(--ink)] grain overflow-hidden">
-          {left}
-        </section>
-        <section className="relative bg-[var(--charcoal)] text-[var(--ivory)] grain overflow-hidden">
-          {right}
-        </section>
+      <div className="absolute inset-0 grid grid-cols-2">
+        <div className="bg-[var(--ivory)] grain relative">{left}</div>
+        <div className="bg-[var(--charcoal)] grain relative">{right}</div>
       </div>
-
-      {/* Razor divider */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-0 bottom-0 left-1/2 w-px bg-[var(--taupe)]/70 animate-divider-pulse"
+        className="pointer-events-none absolute top-0 bottom-0 left-1/2 w-px bg-[var(--taupe)]/60 animate-divider-pulse"
       >
-        <div className="absolute inset-0 animate-divider-breathe bg-[var(--taupe)]/70" />
+        <div className="absolute inset-0 animate-divider-breathe bg-[var(--taupe)]/60" />
       </div>
-
-      {center && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-20">
-          <div className="pointer-events-auto">{center}</div>
-        </div>
-      )}
+      {children && <div className="relative z-10">{children}</div>}
     </div>
   );
 }
@@ -41,37 +32,61 @@ export function SplitShell({ left, right, center, minHeight = "100vh" }: SplitSh
 export function Nav() {
   const { location } = useRouterState();
   const items = [
-    { to: "/", label: "01 — Landing" },
-    { to: "/taste", label: "02 — Profile" },
-    { to: "/brief", label: "03 — Brief" },
-    { to: "/player", label: "04 — Player" },
+    { to: "/", n: "I" },
+    { to: "/taste", n: "II" },
+    { to: "/brief", n: "III" },
+    { to: "/player", n: "IV" },
   ];
   return (
-    <nav className="fixed top-0 inset-x-0 z-30 pointer-events-none">
-      <div className="grid grid-cols-2">
-        <div className="flex items-center justify-between px-8 py-6 text-[var(--ink)]">
-          <Link to="/" className="font-display text-xl tracking-tight pointer-events-auto">
-            FREQUE<span className="text-[var(--cobalt)]">·</span>
+    <nav className="fixed top-0 inset-x-0 z-40 px-8 py-6 flex items-center justify-between mix-blend-difference text-[var(--ivory)]">
+      <Link to="/" className="font-display text-lg tracking-tight">
+        Frequence
+      </Link>
+      <div className="flex gap-8 font-mono text-[10px] caps">
+        {items.map((i) => (
+          <Link
+            key={i.to}
+            to={i.to}
+            className={location.pathname === i.to ? "opacity-100" : "opacity-50 hover:opacity-100 transition-opacity"}
+          >
+            {i.n}
           </Link>
-          <div className="hidden md:flex gap-6 text-[10px] caps font-mono pointer-events-auto">
-            {items.slice(0, 2).map((i) => (
-              <Link key={i.to} to={i.to} className={location.pathname === i.to ? "text-[var(--cobalt)]" : "opacity-70 hover:opacity-100"}>
-                {i.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center justify-between px-8 py-6 text-[var(--ivory)]">
-          <div className="hidden md:flex gap-6 text-[10px] caps font-mono pointer-events-auto">
-            {items.slice(2).map((i) => (
-              <Link key={i.to} to={i.to} className={location.pathname === i.to ? "text-[var(--cobalt)]" : "opacity-70 hover:opacity-100"}>
-                {i.label}
-              </Link>
-            ))}
-          </div>
-          <span className="font-mono text-[10px] caps opacity-70">NCE / v0.1</span>
-        </div>
+        ))}
       </div>
     </nav>
+  );
+}
+
+/** A clean, single button (not split). Cobalt outline, inverts on hover. */
+export function PrimaryButton({
+  to, onClick, children, kicker,
+}: { to?: string; onClick?: () => void; children: ReactNode; kicker?: string }) {
+  const inner = (
+    <span className="group inline-flex flex-col items-center gap-3">
+      {kicker && <span className="font-mono text-[10px] caps text-[var(--taupe)]">{kicker}</span>}
+      <span className="relative inline-flex items-center justify-center px-10 py-4 border border-[var(--cobalt)] bg-[var(--cobalt)] text-[var(--ivory)] font-mono text-[11px] caps transition-all duration-500 hover:bg-transparent hover:text-[var(--cobalt)]">
+        {children}
+      </span>
+    </span>
+  );
+  if (to) return <Link to={to}>{inner}</Link>;
+  return <button onClick={onClick} type="button">{inner}</button>;
+}
+
+/** A word rendered twice with clip-path, so each half inverts against the
+ *  light/dark backdrop behind it. Produces a single, perfectly readable
+ *  wordmark that respects the split. */
+export function SplitWord({ children, className = "" }: { children: string; className?: string }) {
+  return (
+    <span className={`relative inline-block leading-none ${className}`}>
+      <span className="text-[var(--ink)]" style={{ clipPath: "inset(0 50% 0 0)" }}>{children}</span>
+      <span
+        className="absolute inset-0 text-[var(--ivory)]"
+        style={{ clipPath: "inset(0 0 0 50%)" }}
+        aria-hidden
+      >
+        {children}
+      </span>
+    </span>
   );
 }
