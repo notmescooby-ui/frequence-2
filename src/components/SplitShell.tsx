@@ -1,92 +1,210 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
+import { ReactNode, useState } from "react";
 
-interface SplitShellProps {
-  left?: ReactNode;
-  right?: ReactNode;
-  children?: ReactNode;
-  minHeight?: string;
+/* ============================================================
+ *  NAV — deep charcoal bar with hamburger popup
+ * ============================================================ */
+export function Nav() {
+  const [open, setOpen] = useState(false);
+  const items = [
+    { to: "/", label: "Home" },
+    { to: "/about", label: "About" },
+    { to: "/connect", label: "Connect" },
+    { to: "/how-it-works", label: "How It Works" },
+    { to: "/login", label: "Login" },
+  ] as const;
+
+  return (
+    <>
+      <nav className="fixed top-0 inset-x-0 z-50 bg-[var(--charcoal)] text-[var(--ivory)] h-16 px-8 flex items-center justify-between">
+        <Link to="/" className="font-display text-xl tracking-tight">
+          FREQUENCE
+        </Link>
+        <button
+          type="button"
+          aria-label="Open menu"
+          onClick={() => setOpen((v) => !v)}
+          className="font-mono text-sm caps-wide opacity-90 hover:opacity-100 transition-opacity"
+        >
+          {open ? "Close" : "Menu"} <span className="ml-2">{open ? "×" : "≡"}</span>
+        </button>
+      </nav>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-[var(--charcoal)] text-[var(--ivory)] animate-menu-in flex flex-col"
+          onClick={() => setOpen(false)}
+        >
+          <div className="h-16" />
+          <div className="flex-1 flex flex-col items-center justify-center gap-10 px-8">
+            {items.map((i) => (
+              <Link
+                key={i.to}
+                to={i.to}
+                onClick={() => setOpen(false)}
+                className="font-display italic font-light text-5xl md:text-7xl text-[var(--ivory)] hover:text-[var(--rose)] transition-colors"
+              >
+                {i.label}
+              </Link>
+            ))}
+          </div>
+          <p className="font-mono text-[10px] caps-wide text-[var(--ivory)]/40 text-center pb-10">
+            FREQUENCE · MMXXVI
+          </p>
+        </div>
+      )}
+    </>
+  );
 }
 
-/** Split background (ivory / charcoal) with a hairline cobalt-tinted divider.
- *  Content is rendered as a single overlay so headings, buttons, and prose
- *  are never broken across the seam. */
-export function SplitShell({ left, right, children, minHeight = "100vh" }: SplitShellProps) {
+/* ============================================================
+ *  SPLIT HERO — only used at the top of each page
+ *  Left half cream, right half charcoal, word straddles the seam.
+ * ============================================================ */
+interface SplitHeroProps {
+  /** word shown in big display type — first half lands on cream, second half on charcoal */
+  word: string;
+  /** italic tagline below the word */
+  tagline: string;
+  /** small kicker above */
+  kicker?: string;
+  /** optional CTA rendered centered below */
+  cta?: ReactNode;
+  /** extra height multiplier */
+  tall?: boolean;
+}
+
+export function SplitHero({ word, tagline, kicker, cta, tall = false }: SplitHeroProps) {
   return (
-    <div className="relative w-full overflow-hidden" style={{ minHeight }}>
+    <header
+      className={`relative w-full overflow-hidden ${tall ? "h-[100vh]" : "h-[70vh] min-h-[520px]"}`}
+    >
+      {/* two backgrounds */}
       <div className="absolute inset-0 grid grid-cols-2">
-        <div className="bg-[var(--ivory)] grain relative">{left}</div>
-        <div className="bg-[var(--charcoal)] grain relative">{right}</div>
+        <div className="bg-[var(--ivory)]" />
+        <div className="bg-[var(--charcoal)]" />
       </div>
+
+      {/* hairline wine divider, pulsing */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-0 bottom-0 left-1/2 w-px bg-[var(--taupe)]/60 animate-divider-pulse"
-      >
-        <div className="absolute inset-0 animate-divider-breathe bg-[var(--taupe)]/60" />
+        className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 animate-divider-wine"
+        style={{ width: "0.5px", background: "var(--wine)" }}
+      />
+
+      {/* content overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
+        {kicker && (
+          <p className="font-mono text-[10px] caps-wide text-[var(--wine)] mb-8 animate-slow-fade">
+            {kicker}
+          </p>
+        )}
+
+        <h1
+          className="font-display font-light tracking-[-0.02em] leading-[0.92] animate-slow-fade"
+          style={{ fontSize: "clamp(64px, 14vw, 220px)", animationDelay: "0.15s" }}
+        >
+          <SplitWord>{word}</SplitWord>
+        </h1>
+
+        <p
+          className="mt-10 max-w-xl font-display italic font-light text-xl md:text-2xl animate-slow-fade"
+          style={{ animationDelay: "0.4s" }}
+        >
+          <SplitText>{tagline}</SplitText>
+        </p>
+
+        {cta && (
+          <div className="mt-12 animate-slow-fade" style={{ animationDelay: "0.6s" }}>
+            {cta}
+          </div>
+        )}
       </div>
-      {children && <div className="relative z-10">{children}</div>}
-    </div>
+    </header>
   );
 }
 
-export function Nav() {
-  const { location } = useRouterState();
-  const items = [
-    { to: "/", n: "I" },
-    { to: "/taste", n: "II" },
-    { to: "/brief", n: "III" },
-    { to: "/player", n: "IV" },
-  ];
+/* A word that inverts color across the central seam */
+export function SplitWord({ children }: { children: string }) {
   return (
-    <nav className="fixed top-0 inset-x-0 z-40 px-8 py-6 flex items-center justify-between mix-blend-difference text-[var(--ivory)]">
-      <Link to="/" className="font-display text-lg tracking-tight">
-        Frequence
-      </Link>
-      <div className="flex gap-8 font-mono text-[10px] caps">
-        {items.map((i) => (
-          <Link
-            key={i.to}
-            to={i.to}
-            className={location.pathname === i.to ? "opacity-100" : "opacity-50 hover:opacity-100 transition-opacity"}
-          >
-            {i.n}
-          </Link>
-        ))}
-      </div>
-    </nav>
-  );
-}
-
-/** A clean, single button (not split). Cobalt outline, inverts on hover. */
-export function PrimaryButton({
-  to, onClick, children, kicker,
-}: { to?: string; onClick?: () => void; children: ReactNode; kicker?: string }) {
-  const inner = (
-    <span className="group inline-flex flex-col items-center gap-3">
-      {kicker && <span className="font-mono text-[10px] caps text-[var(--taupe)]">{kicker}</span>}
-      <span className="relative inline-flex items-center justify-center px-10 py-4 border border-[var(--cobalt)] bg-[var(--cobalt)] text-[var(--ivory)] font-mono text-[11px] caps transition-all duration-500 hover:bg-transparent hover:text-[var(--cobalt)]">
+    <span className="relative inline-block leading-none">
+      <span className="text-[var(--ink)]" style={{ clipPath: "inset(0 50% 0 0)" }}>
         {children}
       </span>
+      <span
+        aria-hidden
+        className="absolute inset-0 text-[var(--ivory)]"
+        style={{ clipPath: "inset(0 0 0 50%)" }}
+      >
+        {children}
+      </span>
+    </span>
+  );
+}
+
+/* Tagline that also inverts across the seam */
+export function SplitText({ children }: { children: string }) {
+  return (
+    <span className="relative inline-block">
+      <span className="text-[var(--ink)]" style={{ clipPath: "inset(0 50% 0 0)" }}>
+        {children}
+      </span>
+      <span
+        aria-hidden
+        className="absolute inset-0 text-[var(--ivory)]"
+        style={{ clipPath: "inset(0 0 0 50%)" }}
+      >
+        {children}
+      </span>
+    </span>
+  );
+}
+
+/* ============================================================
+ *  BUTTONS
+ * ============================================================ */
+export function OutlineButton({
+  to, onClick, children, dark = false,
+}: { to?: string; onClick?: () => void; children: ReactNode; dark?: boolean }) {
+  const cls = dark
+    ? "border-[var(--ivory)] text-[var(--ivory)] hover:bg-[var(--ivory)] hover:text-[var(--ink)]"
+    : "border-[var(--ink)] text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--ivory)]";
+  const inner = (
+    <span className={`inline-flex items-center justify-center px-10 py-4 border ${cls} font-mono text-[11px] caps-wide transition-colors duration-500`}>
+      {children}
     </span>
   );
   if (to) return <Link to={to}>{inner}</Link>;
-  return <button onClick={onClick} type="button">{inner}</button>;
+  return <button type="button" onClick={onClick}>{inner}</button>;
 }
 
-/** A word rendered twice with clip-path, so each half inverts against the
- *  light/dark backdrop behind it. Produces a single, perfectly readable
- *  wordmark that respects the split. */
-export function SplitWord({ children, className = "" }: { children: string; className?: string }) {
-  return (
-    <span className={`relative inline-block leading-none ${className}`}>
-      <span className="text-[var(--ink)]" style={{ clipPath: "inset(0 50% 0 0)" }}>{children}</span>
-      <span
-        className="absolute inset-0 text-[var(--ivory)]"
-        style={{ clipPath: "inset(0 0 0 50%)" }}
-        aria-hidden
-      >
-        {children}
-      </span>
+export function WineButton({
+  to, onClick, type = "button", children, full = false,
+}: { to?: string; onClick?: () => void; type?: "button" | "submit"; children: ReactNode; full?: boolean }) {
+  const inner = (
+    <span className={`inline-flex items-center justify-center px-10 py-4 bg-[var(--wine)] text-[var(--ivory)] font-mono text-[11px] caps-wide transition-opacity duration-300 hover:opacity-85 ${full ? "w-full" : ""}`}>
+      {children}
     </span>
   );
+  if (to) return <Link to={to} className={full ? "block w-full" : ""}>{inner}</Link>;
+  return <button type={type} onClick={onClick} className={full ? "w-full" : ""}>{inner}</button>;
+}
+
+/* ============================================================
+ *  Section helpers
+ * ============================================================ */
+export function CreamSection({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <section className={`bg-[var(--ivory)] text-[var(--ink)] py-32 px-8 ${className}`}>
+      {children}
+    </section>
+  );
+}
+
+export function HairlineRule() {
+  return <hr className="border-0 border-t border-[var(--ink)]/15 my-12" />;
+}
+
+export function SectionLabel({ children }: { children: ReactNode }) {
+  return <p className="font-mono text-[10px] caps-wide text-[var(--wine)] mb-12">{children}</p>;
 }
