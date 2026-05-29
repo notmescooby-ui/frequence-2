@@ -101,14 +101,14 @@ export function SplitHero({ word, tagline, kicker, cta, tall = false }: SplitHer
         )}
 
         <h1
-          className="font-display font-light tracking-[-0.02em] leading-[0.92] animate-slow-fade"
-          style={{ fontSize: "clamp(64px, 14vw, 220px)", animationDelay: "0.15s" }}
+          className="font-display font-medium tracking-[-0.04em] leading-[0.9] animate-slow-fade"
+          style={{ fontSize: "clamp(56px, 13vw, 200px)", animationDelay: "0.15s" }}
         >
           <SplitWord>{word}</SplitWord>
         </h1>
 
         <p
-          className="mt-10 max-w-xl font-display italic font-light text-xl md:text-2xl animate-slow-fade"
+          className="mt-10 max-w-xl font-display italic font-normal text-xl md:text-2xl animate-slow-fade"
           style={{ animationDelay: "0.4s" }}
         >
           <SplitText>{tagline}</SplitText>
@@ -120,6 +120,9 @@ export function SplitHero({ word, tagline, kicker, cta, tall = false }: SplitHer
           </div>
         )}
       </div>
+
+      {/* hairline curtain — closes the split, opens the cream */}
+      <div aria-hidden className="absolute bottom-0 inset-x-0 h-px bg-[#1A1A1A]" />
     </header>
   );
 }
