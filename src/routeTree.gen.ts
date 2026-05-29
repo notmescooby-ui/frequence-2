@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LabRouteImport } from './routes/lab'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as AboutRouteImport } from './routes/about'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabRoute = LabRouteImport.update({
+  id: '/lab',
+  path: '/lab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/connect': typeof ConnectRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/lab': typeof LabRoute
   '/login': typeof LoginRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/connect': typeof ConnectRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/lab': typeof LabRoute
   '/login': typeof LoginRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,22 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/connect': typeof ConnectRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/lab': typeof LabRoute
   '/login': typeof LoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/connect' | '/how-it-works' | '/login'
+  fullPaths: '/' | '/about' | '/connect' | '/how-it-works' | '/lab' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/connect' | '/how-it-works' | '/login'
-  id: '__root__' | '/' | '/about' | '/connect' | '/how-it-works' | '/login'
+  to: '/' | '/about' | '/connect' | '/how-it-works' | '/lab' | '/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/connect'
+    | '/how-it-works'
+    | '/lab'
+    | '/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +92,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ConnectRoute: typeof ConnectRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  LabRoute: typeof LabRoute
   LoginRoute: typeof LoginRoute
 }
 
@@ -86,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab': {
+      id: '/lab'
+      path: '/lab'
+      fullPath: '/lab'
+      preLoaderRoute: typeof LabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/how-it-works': {
@@ -124,6 +148,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ConnectRoute: ConnectRoute,
   HowItWorksRoute: HowItWorksRoute,
+  LabRoute: LabRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
