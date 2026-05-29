@@ -28,7 +28,50 @@ function Landing() {
 
         <Platforms />
         <WaveformGallery />
+        <Newsletter />
         <Footer />
+      </div>
+    </>
+  );
+}
+
+/* ---------------- Newsletter ---------------- */
+function Newsletter() {
+  return (
+    <section className="bg-[var(--ivory)] py-32 px-8 border-t border-[var(--ink)]/10">
+      <div className="max-w-3xl mx-auto text-center">
+        <SectionLabel>§ Stay close</SectionLabel>
+        <h2 className="font-display font-medium text-4xl md:text-5xl leading-tight mb-6 tracking-[-0.02em]">
+          A quiet letter, <em className="italic font-normal">once a month.</em>
+        </h2>
+        <p className="text-base md:text-lg text-[var(--ink)]/70 mb-14 max-w-xl mx-auto leading-relaxed">
+          New compositions, studio notes, and the occasional invitation. Drop your email — we keep our mailing list as carefully edited as our records.
+        </p>
+
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex flex-col sm:flex-row items-stretch gap-0 max-w-xl mx-auto border-b border-[var(--ink)]/30 focus-within:border-[var(--wine)] transition-colors"
+        >
+          <input
+            type="email"
+            placeholder="your@gmail.com"
+            className="flex-1 bg-transparent border-0 outline-none py-4 font-display italic text-xl text-left placeholder:text-[var(--ink)]/30"
+          />
+          <button
+            type="submit"
+            className="font-mono text-[11px] caps-wide bg-[var(--wine)] text-[var(--ivory)] px-8 py-4 hover:opacity-85 transition-opacity"
+          >
+            Subscribe
+          </button>
+        </form>
+
+        <p className="font-mono text-[10px] caps-wide text-[var(--ink)]/40 mt-6">
+          No spam. Unsubscribe with one click.
+        </p>
+      </div>
+    </section>
+  );
+}
       </div>
     </>
   );
