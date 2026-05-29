@@ -84,7 +84,7 @@ function Login() {
               </div>
 
               <div className="pt-6">
-                <WineButton type="submit" full>Enter FREQUENCE</WineButton>
+                <WineButton to="/lab" full>Enter FREQUENCE</WineButton>
               </div>
 
               <p className="font-display italic text-center text-[var(--ink)]/55 pt-4">
