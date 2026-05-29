@@ -12,6 +12,7 @@ export function Nav() {
     { to: "/connect", label: "Connect" },
     { to: "/how-it-works", label: "How It Works" },
     { to: "/login", label: "Login" },
+    { to: "/lab", label: "The Lab" },
   ] as const;
 
   return (
