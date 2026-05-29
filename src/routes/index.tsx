@@ -72,10 +72,7 @@ function Newsletter() {
     </section>
   );
 }
-      </div>
-    </>
-  );
-}
+
 
 /* ---------------- Platforms ---------------- */
 function Platforms() {
