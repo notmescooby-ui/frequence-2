@@ -49,7 +49,7 @@ export function Nav() {
             ))}
           </div>
           <p className="font-mono text-[10px] caps-wide text-[var(--ivory)]/40 text-center pb-10">
-            FREQUENCE · MMXXVI
+            FREQUENCE
           </p>
         </div>
       )}

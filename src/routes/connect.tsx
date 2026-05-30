@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Nav, SplitHero, CreamSection, SectionLabel, WineButton } from "@/components/SplitShell";
+import spotifyimg from "@/assets/spotify.png"
+import appleimg from "@/assets/apple-music-logo.png"
+import amazonimg from "@/assets/amazon-music-logo.png"
 
 export const Route = createFileRoute("/connect")({
   head: () => ({
@@ -15,9 +18,9 @@ export const Route = createFileRoute("/connect")({
 
 function Connect() {
   const platforms = [
-    { name: "Spotify", note: "OAuth handshake" },
-    { name: "Apple Music", note: "MusicKit token" },
-    { name: "Amazon Music", note: "Account link" },
+    { name: "Spotify", note: "connect your account", src: spotifyimg },
+    { name: "Apple Music", note: "connect your account", src: appleimg },
+    { name: "Amazon Music", note: "connect your account", src: amazonimg },
   ];
   return (
     <>
@@ -31,7 +34,7 @@ function Connect() {
 
         <CreamSection>
           <div className="max-w-4xl mx-auto text-center">
-            <SectionLabel>§ Choose a source</SectionLabel>
+            <SectionLabel>Choose a source</SectionLabel>
             <h2 className="font-display font-light text-4xl md:text-5xl mb-24 leading-tight">
               We read only what you choose to share — <em className="italic">play counts, top artists, the songs you return to.</em>
             </h2>
@@ -39,13 +42,14 @@ function Connect() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 items-end">
               {platforms.map((p) => (
                 <div key={p.name} className="flex flex-col items-center gap-6">
-                  <div className="w-20 h-20 border border-[var(--ink)] rounded-full flex items-center justify-center font-display italic text-2xl">
-                    {p.name[0]}
-                  </div>
-                  <div>
-                    <p className="font-display text-2xl">{p.name}</p>
-                    <p className="font-mono text-[10px] caps-wide text-[var(--ink)]/50 mt-1">{p.note}</p>
-                  </div>
+                  <img
+                    src={p.src}
+                    alt={p.name}
+                    loading="lazy"
+                    className="w-full h-[440px] object-cover"
+                    width={800}
+                    height={600}
+                  />
                   <button
                     type="button"
                     className="font-mono text-[11px] caps-wide border border-[var(--ink)] px-8 py-3 hover:bg-[var(--ink)] hover:text-[var(--ivory)] transition-colors duration-500"
