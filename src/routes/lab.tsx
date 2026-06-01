@@ -5,7 +5,16 @@ import {
   Play, Pause, SkipBack, SkipForward, Search, Share2, Volume2, Plus,
 } from "lucide-react";
 
+type LabSearch = {
+  mode?: "listen" | "create";
+};
+
 export const Route = createFileRoute("/lab")({
+  validateSearch: (search: Record<string, unknown>): LabSearch => {
+    return {
+      mode: (search.mode === "listen" || search.mode === "create") ? search.mode : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "The Lab — FREQUENCE" },
@@ -77,7 +86,8 @@ const STRUCTURE_TILES = ["Verse-heavy", "Chorus anthem", "Bridge-forward", "Loop
  *  PAGE
  * ========================================================= */
 function Lab() {
-  const [mode, setMode] = useState<"listen" | "create">("listen");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<"listen" | "create">(search.mode || "listen");
   const [step, setStep] = useState(0);
   const [selections, setSelections] = useState<(string | null)[]>([null, null, null, null]);
 
