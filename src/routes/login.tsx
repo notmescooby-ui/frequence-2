@@ -29,7 +29,7 @@ function Login() {
       <Nav />
       <div className="pt-16">
         <SplitHero
-          kicker="Chapter V"
+          kicker="Chapter V" 
           word="LOGIN"
           tagline="sign in into a world of musical AI"
         />
@@ -84,7 +84,7 @@ function Login() {
               </div>
 
               <div className="pt-6">
-                <WineButton to="/lab" full>Enter FREQUENCE</WineButton>
+                <WineButton to="/onboarding" full>Enter FREQUENCE</WineButton>
               </div>
 
               <p className="font-display italic text-center text-[var(--ink)]/55 pt-4">

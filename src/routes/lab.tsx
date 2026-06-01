@@ -5,20 +5,11 @@ import {
   Play, Pause, SkipBack, SkipForward, Search, Share2, Volume2, Plus,
 } from "lucide-react";
 
-type LabSearch = {
-  mode?: "listen" | "create";
-};
-
 export const Route = createFileRoute("/lab")({
-  validateSearch: (search: Record<string, unknown>): LabSearch => {
-    return {
-      mode: (search.mode === "listen" || search.mode === "create") ? search.mode : undefined,
-    };
-  },
   head: () => ({
     meta: [
       { title: "The Lab — FREQUENCE" },
-      { name: "description", content: "Your composition studio." },
+      { name: "description", content: "Your music listening center." },
     ],
   }),
   component: Lab,
@@ -86,40 +77,14 @@ const STRUCTURE_TILES = ["Verse-heavy", "Chorus anthem", "Bridge-forward", "Loop
  *  PAGE
  * ========================================================= */
 function Lab() {
-  const search = Route.useSearch();
-  const [mode, setMode] = useState<"listen" | "create">(search.mode || "listen");
-  const [step, setStep] = useState(0);
-  const [selections, setSelections] = useState<(string | null)[]>([null, null, null, null]);
-
-  function reset() {
-    setMode("listen");
-    setStep(0);
-    setSelections([null, null, null, null]);
-  }
-
-  function pick(value: string) {
-    const next = [...selections];
-    next[step] = value;
-    setSelections(next);
-    if (step < 3) setTimeout(() => setStep(step + 1), 350);
-  }
-
   return (
     <>
       <Nav />
       <div className="pt-16 pb-20 min-h-screen bg-[var(--ivory)]">
         <div className="grid grid-cols-[280px_1fr_280px] gap-px bg-[var(--ink)]/10 min-h-[calc(100vh-64px-80px)]">
           <LeftSidebar />
-          <CenterStage
-            mode={mode}
-            onCreate={() => { setMode("create"); setStep(0); }}
-            onCancel={reset}
-            step={step}
-            setStep={setStep}
-            selections={selections}
-            pick={pick}
-          />
-          <RightPanel mode={mode} step={step} selections={selections} onCompose={reset} />
+          <CenterStage />
+          <RightPanel />
         </div>
       </div>
       <BottomPlayer />
@@ -179,40 +144,20 @@ function LeftSidebar() {
 /* =========================================================
  *  CENTER STAGE
  * ========================================================= */
-function CenterStage({
-  mode, onCreate, onCancel, step, setStep, selections, pick,
-}: {
-  mode: "listen" | "create";
-  onCreate: () => void;
-  onCancel: () => void;
-  step: number;
-  setStep: (n: number) => void;
-  selections: (string | null)[];
-  pick: (v: string) => void;
-}) {
+function CenterStage() {
   return (
     <main className="bg-[var(--ivory)] px-12 py-12 overflow-y-auto">
-      {mode === "listen" ? (
-        <ListenerMode onCreate={onCreate} />
-      ) : (
-        <CreateWizard step={step} setStep={setStep} selections={selections} pick={pick} onCancel={onCancel} />
-      )}
+      <ListenerMode />
     </main>
   );
 }
 
-function ListenerMode({ onCreate }: { onCreate: () => void }) {
+function ListenerMode() {
   const [playing, setPlaying] = useState(true);
   return (
     <div>
       <div className="flex items-start justify-between mb-12">
         <p className="font-mono text-[10px] caps-wide text-[var(--wine)]">Now playing</p>
-        <button
-          onClick={onCreate}
-          className="inline-flex items-center gap-2 font-mono text-[11px] caps-wide border border-[var(--ink)] px-5 py-2 hover:bg-[var(--ink)] hover:text-[var(--ivory)] transition-colors duration-500"
-        >
-          <Plus className="w-3.5 h-3.5" /> Create
-        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-end mb-16">
@@ -380,46 +325,44 @@ function CreateWizard({
 /* =========================================================
  *  RIGHT PANEL
  * ========================================================= */
-function RightPanel({
-  mode, step, selections, onCompose,
-}: {
-  mode: "listen" | "create";
-  step: number;
-  selections: (string | null)[];
-  onCompose: () => void;
-}) {
+function RightPanel() {
   return (
     <aside className="bg-[var(--ivory)] p-6 flex flex-col gap-8 overflow-y-auto">
-      <ArtistCard />
-      {mode === "listen" ? <CompositionsList /> : <CompositionBrief selections={selections} step={step} onCompose={onCompose} />}
+      <ProfileCard />
+      <RecentPlaybacksList />
     </aside>
   );
 }
 
-function ArtistCard() {
+function ProfileCard() {
   return (
     <div className="flex flex-col items-center text-center border border-[var(--ink)]/15 p-5">
       <Avatar initials="OM" tone="#9B4D5E" size={60} />
       <p className="font-display text-lg mt-3 leading-tight">Olive Marchetti</p>
-      <p className="font-mono text-[9px] caps-wide text-[var(--wine)] mt-1">Artist</p>
+      <p className="font-mono text-[9px] caps-wide text-[var(--wine)] mt-1">Premium Listener</p>
     </div>
   );
 }
 
-function CompositionsList() {
+function RecentPlaybacksList() {
+  const playbacks = [
+    { t: "Pink + White", artist: "Frank Ocean", time: "3:04" },
+    { t: "By Your Side", artist: "Sade", time: "4:35" },
+    { t: "Motion Sickness", artist: "Phoebe Bridgers", time: "4:01" },
+    { t: "Self Control", artist: "Frank Ocean", time: "4:09" },
+  ];
   return (
     <div>
-      <h3 className="font-mono text-[9px] caps-wide text-[var(--ink)]/60 mb-5">Your compositions</h3>
+      <h3 className="font-mono text-[9px] caps-wide text-[var(--ink)]/60 mb-5">Recent Playbacks</h3>
       <ul className="space-y-5">
-        {COMPOSITIONS.map((c) => (
-          <li key={c.t} className="border-b border-[var(--ink)]/10 pb-5">
-            <p className="font-display italic text-base leading-tight mb-3">{c.t}</p>
-            <MiniWave />
+        {playbacks.map((p) => (
+          <li key={p.t} className="border-b border-[var(--ink)]/10 pb-5">
+            <p className="font-display text-base leading-tight mb-1">{p.t}</p>
+            <p className="font-mono text-[10px] text-[var(--ink)]/55">{p.artist}</p>
             <div className="flex items-center justify-between mt-3">
-              <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">{c.time}</span>
+              <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">{p.time}</span>
               <div className="flex gap-3">
-                <button className="text-[var(--ink)]/60 hover:text-[var(--wine)] transition-colors"><Play className="w-3.5 h-3.5" /></button>
-                <button className="text-[var(--ink)]/60 hover:text-[var(--wine)] transition-colors"><Share2 className="w-3.5 h-3.5" /></button>
+                <button className="text-[var(--ink)]/60 hover:text-[var(--wine)] font-mono text-[10px] caps-wide transition-colors">Play</button>
               </div>
             </div>
           </li>
@@ -427,76 +370,6 @@ function CompositionsList() {
       </ul>
     </div>
   );
-}
-
-function MiniWave() {
-  const bars = Array.from({ length: 32 }, (_, i) => 4 + Math.abs(Math.sin(i * 0.6)) * 14);
-  return (
-    <div className="flex items-center gap-[2px] h-5">
-      {bars.map((h, i) => (
-        <span key={i} className="w-[2px] bg-[var(--ink)]/40" style={{ height: `${h}px` }} />
-      ))}
-    </div>
-  );
-}
-
-function CompositionBrief({ selections, step, onCompose }: { selections: (string | null)[]; step: number; onCompose: () => void }) {
-  const lines = [
-    { label: "Beat", value: selections[0] ? `breezy · ${selections[0]?.toLowerCase()}` : null },
-    { label: "Lyrics", value: selections[1] ? `slow burn · second-person` : null },
-    { label: "Energy", value: selections[2] ? `6 / 10 · builds` : null },
-    { label: "Structure", value: selections[3] ? `${selections[3]?.toLowerCase()}` : null },
-  ];
-  const ready = selections.every(Boolean);
-
-  return (
-    <div>
-      <h3 className="font-mono text-[9px] caps-wide text-[var(--wine)] mb-5">Live brief</h3>
-      <div className="border border-[var(--ink)]/15 p-5 space-y-5">
-        {lines.map((l, i) => {
-          const visible = !!l.value;
-          return (
-            <div key={l.label} className={`transition-opacity duration-700 ${visible ? "opacity-100" : "opacity-25"}`}>
-              <div
-                className="h-px bg-[var(--wine)] mb-2 transition-all duration-700 origin-left"
-                style={{ transform: `scaleX(${visible ? 1 : 0})` }}
-              />
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="font-mono text-[9px] caps-wide text-[var(--ink)]/60">{l.label}</span>
-                <span className="font-display italic text-sm text-right truncate">
-                  {l.value ? <Typewriter text={l.value} key={l.value} /> : "—"}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {ready && (
-        <button
-          onClick={onCompose}
-          className="mt-6 w-full bg-[var(--wine)] text-[var(--ivory)] font-mono text-[11px] caps-wide py-4 hover:opacity-85 transition-opacity animate-slow-fade"
-        >
-          Compose
-        </button>
-      )}
-    </div>
-  );
-}
-
-function Typewriter({ text }: { text: string }) {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    setN(0);
-    const id = setInterval(() => {
-      setN((v) => {
-        if (v >= text.length) { clearInterval(id); return v; }
-        return v + 1;
-      });
-    }, 25);
-    return () => clearInterval(id);
-  }, [text]);
-  return <span>{text.slice(0, n)}</span>;
 }
 
 /* =========================================================

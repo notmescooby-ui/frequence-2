@@ -9,14 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ScratchRouteImport } from './routes/scratch'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LabRouteImport } from './routes/lab'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as ComposeRouteImport } from './routes/compose'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ScratchRoute = ScratchRouteImport.update({
+  id: '/scratch',
+  path: '/scratch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -42,6 +49,11 @@ const ConnectRoute = ConnectRouteImport.update({
   path: '/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComposeRoute = ComposeRouteImport.update({
+  id: '/compose',
+  path: '/compose',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -56,73 +68,94 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/compose': typeof ComposeRoute
   '/connect': typeof ConnectRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/scratch': typeof ScratchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/compose': typeof ComposeRoute
   '/connect': typeof ConnectRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/scratch': typeof ScratchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/compose': typeof ComposeRoute
   '/connect': typeof ConnectRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/scratch': typeof ScratchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/compose'
     | '/connect'
     | '/how-it-works'
     | '/lab'
     | '/login'
     | '/onboarding'
+    | '/scratch'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/compose'
     | '/connect'
     | '/how-it-works'
     | '/lab'
     | '/login'
     | '/onboarding'
+    | '/scratch'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/compose'
     | '/connect'
     | '/how-it-works'
     | '/lab'
     | '/login'
     | '/onboarding'
+    | '/scratch'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ComposeRoute: typeof ComposeRoute
   ConnectRoute: typeof ConnectRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LabRoute: typeof LabRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
+  ScratchRoute: typeof ScratchRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/scratch': {
+      id: '/scratch'
+      path: '/scratch'
+      fullPath: '/scratch'
+      preLoaderRoute: typeof ScratchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -158,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compose': {
+      id: '/compose'
+      path: '/compose'
+      fullPath: '/compose'
+      preLoaderRoute: typeof ComposeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -178,11 +218,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ComposeRoute: ComposeRoute,
   ConnectRoute: ConnectRoute,
   HowItWorksRoute: HowItWorksRoute,
   LabRoute: LabRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
+  ScratchRoute: ScratchRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
