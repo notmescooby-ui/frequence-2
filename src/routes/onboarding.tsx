@@ -58,7 +58,7 @@ function OnboardingWelcome() {
         // Only load if name/country is completed
         if (parsed.personalDetails?.name && parsed.personalDetails?.country) {
           setFormData(parsed);
-          
+
           // Find first selected artist PFP for vinyl disk label
           const firstArtistName = parsed.selectedArtists?.[0];
           const artist = artistList.find((a) => a.name === firstArtistName);
@@ -213,12 +213,11 @@ You listen to understand yourself.`
     return (
       <div className="min-h-screen bg-ivory text-ink flex flex-col relative bg-cream-watermark select-none">
         {/* Header containing blended logo */}
-        <header className="w-full flex justify-center py-10 bg-transparent flex-shrink-0 relative z-25 border-b border-ink/5">
-          <img 
-            src={frequenceLogo} 
-            alt="FREQUENCE Logo" 
-            className="h-10 w-auto object-contain select-none opacity-85" 
-            style={{ mixBlendMode: 'multiply' }} 
+        <header className="w-full flex justify-center py-6 bg-transparent flex-shrink-0 relative z-25 border-b border-ink/5">
+          <img
+            src={frequenceLogo}
+            alt="FREQUENCE Logo"
+            className="h-70 w-auto object-contain select-none transition-all duration-300 hover:scale-110"
           />
         </header>
 
@@ -268,12 +267,12 @@ You listen to understand yourself.`
     return (
       <div className="min-h-screen bg-ivory text-ink flex flex-col relative bg-cream-watermark select-none">
         {/* Header containing blended logo */}
-        <header className="w-full flex justify-center py-10 bg-transparent flex-shrink-0 relative z-25 border-b border-ink/5">
-          <img 
-            src={frequenceLogo} 
-            alt="FREQUENCE Logo" 
-            className="h-10 w-auto object-contain select-none opacity-85" 
-            style={{ mixBlendMode: 'multiply' }} 
+        <header className="w-full flex justify-center py-6 bg-transparent flex-shrink-0 relative z-25 border-b border-ink/5">
+          <img
+            src={frequenceLogo}
+            alt="FREQUENCE Logo"
+            className="w-auto object-contain select-none transition-all duration-300 hover:scale-105"
+            style={{ height: '160px' }}
           />
         </header>
 
@@ -316,7 +315,7 @@ You listen to understand yourself.`
           </button>
 
           {/* Back button overlay */}
-          <button 
+          <button
             onClick={() => setOnboardingStep(2)}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-wine text-white px-8 py-3 rounded-full font-mono text-[9px] uppercase tracking-widest cursor-pointer font-bold shadow-md hover:bg-wine/90 transition-all z-30 animate-pulse"
           >
@@ -334,7 +333,7 @@ You listen to understand yourself.`
 
       {/* Main summary view */}
       <main className="flex-1 flex flex-col justify-center max-w-4xl w-full mx-auto px-6 py-12 relative z-10">
-        
+
         <div className="space-y-12 animate-slow-fade">
           <div>
             <span className="font-mono text-[10px] uppercase tracking-widest text-wine font-bold">§ Welcome</span>
@@ -352,7 +351,7 @@ You listen to understand yourself.`
               <span className="font-mono text-[8px] uppercase tracking-[0.25em] text-wine font-bold block">
                 Section 06 / Music Personality
               </span>
-              
+
               <div className="space-y-4 max-w-2xl">
                 <h2 className="font-display text-2xl md:text-3xl font-extrabold tracking-tight text-ink">
                   {personality.title}
@@ -366,11 +365,11 @@ You listen to understand yourself.`
 
           {/* Album / Sliding vinyl jacket details card mockup */}
           <div className="relative flex flex-col md:flex-row items-center gap-12 bg-black/[0.02] border border-ink/5 p-8 rounded overflow-hidden group">
-            
+
             {/* Spinning Vinyl Record Visual */}
             <div className="relative w-64 h-48 flex-shrink-0 flex items-center justify-center select-none">
               {/* Sliding holder: translates out on hover to reveal the center spindle image */}
-              <div 
+              <div
                 className="absolute top-1 left-0 w-46 h-46 z-10 transition-transform duration-700 ease-out translate-x-10 group-hover:translate-x-28"
                 style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               >

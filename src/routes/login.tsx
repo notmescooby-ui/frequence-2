@@ -260,11 +260,17 @@ function Login() {
 
   const handleLogin = async (provider: "google" | "spotify") => {
     try {
+      const options: any = {
+        redirectTo: `${window.location.origin}/onboarding`,
+      };
+
+      if (provider === "spotify") {
+        options.scopes = "playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played";
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: {
-          redirectTo: `${window.location.origin}/onboarding`,
-        },
+        options,
       });
       if (error) throw error;
     } catch (err) {

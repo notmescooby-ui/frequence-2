@@ -1,9 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Nav } from "@/components/SplitShell";
 import {
   Play, Pause, SkipBack, SkipForward, Search, Share2, Volume2, Plus,
 } from "lucide-react";
+import { useSpotifyPlaylists } from "@/hooks/useSpotifyPlaylists";
+import { useSpotifyProfile } from "@/hooks/useSpotifyProfile";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/lab")({
   head: () => ({
@@ -18,16 +21,6 @@ export const Route = createFileRoute("/lab")({
 /* =========================================================
  *  DATA
  * ========================================================= */
-const PLAYLISTS = [
-  { name: "Late Practice Room", count: 42 },
-  { name: "Sunday, Slow", count: 18 },
-  { name: "Drive · East", count: 27 },
-  { name: "Vinyl Pulls 2024", count: 64 },
-  { name: "Studio Worship", count: 31 },
-  { name: "Friday, Loud", count: 22 },
-  { name: "Bedroom Pop", count: 47 },
-  { name: "Coffee + Carbon", count: 14 },
-];
 const TOP_ARTISTS = ["Frank Ocean", "Sade", "Phoebe Bridgers", "Tyler", "Aphex Twin"];
 const TOP_TRACKS = [
   { n: "01", t: "Pink + White", a: "Frank Ocean", d: "3:04" },
@@ -95,14 +88,36 @@ function Lab() {
 /* =========================================================
  *  LEFT SIDEBAR
  * ========================================================= */
-function LeftSidebar() {
+export function LeftSidebar() {
+  const { playlists, loading } = useSpotifyPlaylists();
+  const { profile, loading: profileLoading } = useSpotifyProfile();
+
+  const handleReconnect = async () => {
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: "spotify",
+        options: {
+          scopes: "playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played",
+          redirectTo: `${window.location.origin}/lab`,
+        }
+      });
+    } catch (e) {
+      console.error("Failed to connect Spotify:", e);
+    }
+  };
+
+  const displayName = profile?.displayName || "Olive Marchetti";
+  const initials = profile?.initials || "OM";
+  const image = profile?.image;
+  const product = profile?.product ? `Spotify · ${profile.product.toUpperCase()}` : "Spotify · Premium";
+
   return (
     <aside className="bg-[var(--ivory)] p-6 flex flex-col gap-8 overflow-y-auto">
       <div className="flex items-center gap-3">
-        <Avatar initials="OM" tone="#9B4D5E" size={44} />
+        <Avatar initials={initials} tone="#9B4D5E" size={44} image={image} />
         <div>
-          <p className="font-display text-base leading-tight">Olive Marchetti</p>
-          <p className="font-mono text-[9px] caps-wide text-[var(--ink)]/50">Spotify · Premium</p>
+          <p className="font-display text-base leading-tight">{displayName}</p>
+          <p className="font-mono text-[9px] caps-wide text-[var(--ink)]/50">{product}</p>
         </div>
       </div>
 
@@ -115,15 +130,83 @@ function LeftSidebar() {
       </div>
 
       <div>
-        <h3 className="font-mono text-[9px] caps-wide text-[var(--wine)] mb-4">Playlists</h3>
-        <ul className="space-y-3 max-h-[260px] overflow-y-auto pr-2">
-          {PLAYLISTS.map((p) => (
-            <li key={p.name} className="flex items-baseline justify-between gap-3 group cursor-pointer">
-              <span className="font-display text-sm group-hover:text-[var(--wine)] transition-colors truncate">{p.name}</span>
-              <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular shrink-0">{p.count}</span>
-            </li>
-          ))}
+        <h3 className="font-mono text-[9px] caps-wide text-[var(--wine)] mb-4">Frequence Mixes</h3>
+        <ul className="space-y-3 pr-2 mb-6">
+          <li className="flex items-baseline justify-between gap-3 group cursor-pointer">
+            <Link
+              to="/playlist/$id"
+              params={{ id: "frequence-midnight-drive" }}
+              className="font-display text-sm group-hover:text-[var(--wine)] transition-colors truncate no-underline text-inherit"
+            >
+              Midnight Drive Mix
+            </Link>
+          </li>
+          <li className="flex items-baseline justify-between gap-3 group cursor-pointer">
+            <Link
+              to="/playlist/$id"
+              params={{ id: "frequence-healing-era" }}
+              className="font-display text-sm group-hover:text-[var(--wine)] transition-colors truncate no-underline text-inherit"
+            >
+              Healing Era
+            </Link>
+          </li>
+          <li className="flex items-baseline justify-between gap-3 group cursor-pointer">
+            <Link
+              to="/playlist/$id"
+              params={{ id: "frequence-main-character" }}
+              className="font-display text-sm group-hover:text-[var(--wine)] transition-colors truncate no-underline text-inherit"
+            >
+              Main Character Energy
+            </Link>
+          </li>
+          <li className="flex items-baseline justify-between gap-3 group cursor-pointer">
+            <Link
+              to="/playlist/$id"
+              params={{ id: "frequence-late-night" }}
+              className="font-display text-sm group-hover:text-[var(--wine)] transition-colors truncate no-underline text-inherit"
+            >
+              Late Night Thoughts
+            </Link>
+          </li>
         </ul>
+      </div>
+
+      <div>
+        <h3 className="font-mono text-[9px] caps-wide text-[var(--wine)] mb-4">Playlists</h3>
+        {loading ? (
+          <p className="font-mono text-[9px] text-[var(--ink)]/50 italic">Retrieving playlists...</p>
+        ) : !profile && !profileLoading ? (
+          <div className="border border-[var(--wine)]/25 bg-[var(--wine)]/[0.03] p-4 rounded text-left space-y-3">
+            <p className="font-sans text-[11px] text-[var(--ink)]/65 leading-relaxed">
+              Spotify session inactive. Reconnect to load your custom playlists.
+            </p>
+            <button
+              onClick={handleReconnect}
+              className="w-full bg-[var(--wine)] hover:bg-[var(--wine)]/90 text-white py-2 px-3 text-[9px] uppercase tracking-widest font-bold cursor-pointer transition-all rounded shadow-sm"
+            >
+              Connect Spotify
+            </button>
+          </div>
+        ) : playlists.length === 0 ? (
+          <p className="font-mono text-[9px] text-[var(--ink)]/50 italic">No playlists found</p>
+        ) : (
+          <ul className="space-y-3 max-h-[260px] overflow-y-auto pr-2">
+            {playlists.map((playlist: any) => (
+              <li key={playlist.id} className="flex items-baseline justify-between gap-3 group cursor-pointer">
+                <Link
+                  to="/playlist/$id"
+                  params={{ id: playlist.id }}
+                  className="font-display text-sm group-hover:text-[var(--wine)] transition-colors truncate no-underline text-inherit"
+                >
+                  {playlist.name}
+                </Link>
+                <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular shrink-0">
+                  {playlist.tracks?.total || 0}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div>
@@ -325,7 +408,7 @@ function CreateWizard({
 /* =========================================================
  *  RIGHT PANEL
  * ========================================================= */
-function RightPanel() {
+export function RightPanel() {
   return (
     <aside className="bg-[var(--ivory)] p-6 flex flex-col gap-8 overflow-y-auto">
       <ProfileCard />
@@ -335,11 +418,18 @@ function RightPanel() {
 }
 
 function ProfileCard() {
+  const { profile } = useSpotifyProfile();
+  
+  const displayName = profile?.displayName || "Olive Marchetti";
+  const initials = profile?.initials || "OM";
+  const image = profile?.image;
+  const product = profile?.product ? `${profile.product.toUpperCase()} listener` : "Premium Listener";
+
   return (
     <div className="flex flex-col items-center text-center border border-[var(--ink)]/15 p-5">
-      <Avatar initials="OM" tone="#9B4D5E" size={60} />
-      <p className="font-display text-lg mt-3 leading-tight">Olive Marchetti</p>
-      <p className="font-mono text-[9px] caps-wide text-[var(--wine)] mt-1">Premium Listener</p>
+      <Avatar initials={initials} tone="#9B4D5E" size={60} image={image} />
+      <p className="font-display text-lg mt-3 leading-tight">{displayName}</p>
+      <p className="font-mono text-[9px] caps-wide text-[var(--wine)] mt-1">{product}</p>
     </div>
   );
 }
@@ -375,7 +465,7 @@ function RecentPlaybacksList() {
 /* =========================================================
  *  BOTTOM PLAYER
  * ========================================================= */
-function BottomPlayer() {
+export function BottomPlayer() {
   const [playing, setPlaying] = useState(true);
   return (
     <div className="fixed bottom-0 inset-x-0 h-20 bg-[var(--ivory)] border-t border-[var(--ink)]/20 px-8 flex items-center gap-8 z-30">
@@ -423,7 +513,17 @@ function BottomPlayer() {
 /* =========================================================
  *  Avatar
  * ========================================================= */
-function Avatar({ initials, tone, size }: { initials: string; tone: string; size: number }) {
+export function Avatar({ initials, tone, size, image }: { initials: string; tone: string; size: number; image?: string }) {
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt={initials}
+        className="rounded-full object-cover shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   return (
     <div
       className="rounded-full flex items-center justify-center font-display italic text-[var(--ivory)] shrink-0"
