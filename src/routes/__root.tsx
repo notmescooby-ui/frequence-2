@@ -99,7 +99,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="relative">
+        <div className="grain-overlay" aria-hidden="true" />
+        <div className="vignette-overlay" aria-hidden="true" />
         {children}
         <Scripts />
       </body>

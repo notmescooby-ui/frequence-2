@@ -86,6 +86,16 @@ export function SplitHero({ word, tagline, kicker, cta, tall = false }: SplitHer
         <div className="bg-[var(--charcoal)]" />
       </div>
 
+      {/* Huge background watermark logo */}
+      <div className="absolute inset-0 select-none pointer-events-none overflow-hidden flex items-center justify-center">
+        <span className="font-display font-bold uppercase tracking-[-0.05em] leading-none absolute whitespace-nowrap text-[var(--charcoal)] opacity-[0.035] blur-[0.5px]" style={{ fontSize: "clamp(150px, 20vw, 600px)", clipPath: "inset(0 50% 0 0)" }}>
+          FREQUENCE
+        </span>
+        <span aria-hidden className="font-display font-bold uppercase tracking-[-0.05em] leading-none absolute whitespace-nowrap text-[var(--ivory)] opacity-[0.035] blur-[0.5px]" style={{ fontSize: "clamp(150px, 20vw, 600px)", clipPath: "inset(0 0 0 50%)" }}>
+          FREQUENCE
+        </span>
+      </div>
+
       {/* hairline wine divider, pulsing */}
       <div
         aria-hidden

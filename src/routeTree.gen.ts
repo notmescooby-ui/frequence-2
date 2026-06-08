@@ -14,6 +14,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LabRouteImport } from './routes/lab'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as DebugRouteImport } from './routes/debug'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as ComposeRouteImport } from './routes/compose'
 import { Route as AboutRouteImport } from './routes/about'
@@ -44,6 +45,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
   path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DebugRoute = DebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConnectRoute = ConnectRouteImport.update({
   id: '/connect',
   path: '/connect',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/compose': typeof ComposeRoute
   '/connect': typeof ConnectRoute
+  '/debug': typeof DebugRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/compose': typeof ComposeRoute
   '/connect': typeof ConnectRoute
+  '/debug': typeof DebugRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/compose': typeof ComposeRoute
   '/connect': typeof ConnectRoute
+  '/debug': typeof DebugRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/compose'
     | '/connect'
+    | '/debug'
     | '/how-it-works'
     | '/lab'
     | '/login'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/compose'
     | '/connect'
+    | '/debug'
     | '/how-it-works'
     | '/lab'
     | '/login'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/compose'
     | '/connect'
+    | '/debug'
     | '/how-it-works'
     | '/lab'
     | '/login'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ComposeRoute: typeof ComposeRoute
   ConnectRoute: typeof ConnectRoute
+  DebugRoute: typeof DebugRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LabRoute: typeof LabRoute
   LoginRoute: typeof LoginRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/debug': {
+      id: '/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof DebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/connect': {
       id: '/connect'
       path: '/connect'
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ComposeRoute: ComposeRoute,
   ConnectRoute: ConnectRoute,
+  DebugRoute: DebugRoute,
   HowItWorksRoute: HowItWorksRoute,
   LabRoute: LabRoute,
   LoginRoute: LoginRoute,
