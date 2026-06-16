@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Nav } from "@/components/SplitShell";
 import { LeftSidebar, RightPanel, BottomPlayer } from "./lab";
-import { getPlaylistTracks } from "@/lib/spotifyApi";
+import { getPlaylistTracks, getSavedTracks } from "@/lib/spotifyApi";
 import { generateFrequenceMixes } from "@/lib/tasteEngine";
+import { usePlayerStore } from "@/store/playerStore";
 
 export const Route = createFileRoute("/playlist/$id")({
   head: () => ({
@@ -20,6 +21,9 @@ function PlaylistTracksPage() {
   const [tracks, setTracks] = useState<any[]>([]);
   const [playlistInfo, setPlaylistInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const playTrack = usePlayerStore((state) => state.playTrack);
+  const currentTrack = usePlayerStore((state) => state.currentTrack);
 
   useEffect(() => {
     async function load() {
@@ -41,13 +45,24 @@ function PlaylistTracksPage() {
                 name: t.name,
                 artists: t.artists.map((artistName) => ({ name: artistName })),
                 album: { name: t.albumName },
-                duration_ms: t.duration_ms
+                duration_ms: t.duration_ms,
+                preview_url: t.preview_url || t.preview
               }
             }));
             setTracks(mapped);
           } else {
             console.error("Mix not found:", mixId);
           }
+        } else if (id === "saved" || id === "liked") {
+          const data = await getSavedTracks();
+          if (data && data.items) {
+            setTracks(data.items);
+          }
+          setPlaylistInfo({
+            name: "Saved Music",
+            description: "Your library of saved tracks on Spotify.",
+            images: []
+          });
         } else {
           const data = await getPlaylistTracks(id);
           if (data && data.items) {
@@ -65,7 +80,7 @@ function PlaylistTracksPage() {
 
   // Fetch playlist details from Spotify (only for Spotify playlists)
   useEffect(() => {
-    if (id.startsWith("frequence-")) return;
+    if (id.startsWith("frequence-") || id === "saved" || id === "liked") return;
 
     async function fetchDetails() {
       try {
@@ -143,7 +158,7 @@ function PlaylistTracksPage() {
                   ) : (
                     <div className="border-t border-[var(--ink)]/15">
                       {tracks.map((item: any, index: number) => {
-                        const track = item.track;
+                        const track = item.track ? item.track : item;
                         if (!track) return null;
                         
                         // Format track duration
@@ -151,15 +166,18 @@ function PlaylistTracksPage() {
                         const sec = Math.floor((track.duration_ms % 60000) / 1000).toString().padStart(2, '0');
                         const duration = `${min}:${sec}`;
 
+                        const isCurrent = currentTrack && currentTrack.id === track.id;
+
                         return (
                           <div 
-                            key={item.track.id + "-" + index} 
-                            className="grid grid-cols-[40px_1fr_1fr_60px] items-baseline gap-6 py-4 border-b border-[var(--ink)]/10 hover:bg-[var(--ink)]/[0.02] transition-colors group cursor-pointer"
+                            key={(track.id || index) + "-" + index} 
+                            onClick={() => playTrack(item, tracks)}
+                            className={`grid grid-cols-[40px_1fr_1fr_60px] items-baseline gap-6 py-4 border-b border-[var(--ink)]/10 hover:bg-[var(--ink)]/[0.02] transition-colors group cursor-pointer ${isCurrent ? "bg-[var(--wine)]/[0.03]" : ""}`}
                           >
                             <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">
                               {String(index + 1).padStart(2, '0')}
                             </span>
-                            <span className="font-display text-base group-hover:italic transition-all truncate text-[var(--ink)]">
+                            <span className={`font-display text-base group-hover:italic transition-all truncate ${isCurrent ? "text-[var(--wine)] font-bold italic" : "text-[var(--ink)]"}`}>
                               {track.name}
                             </span>
                             <span className="font-mono text-[10px] caps-wide text-[var(--ink)]/60 truncate">

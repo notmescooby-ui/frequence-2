@@ -73,6 +73,32 @@ function OnboardingWelcome() {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (!loading && !formData) {
+      navigate({ to: "/login" });
+    }
+  }, [loading, formData, navigate]);
+
+  const handleListenClick = async () => {
+    try {
+      const { getSpotifyToken } = await import("@/lib/spotify");
+      const token = await getSpotifyToken();
+      if (token) {
+        const { getAllPlaylists } = await import("@/lib/spotifyApi");
+        const playlists = await getAllPlaylists();
+        if (playlists && playlists.length > 0) {
+          navigate({ to: "/playlist/$id", params: { id: playlists[0].id } });
+          return;
+        }
+        navigate({ to: "/playlist/$id", params: { id: "saved" } });
+        return;
+      }
+    } catch (e) {
+      console.error("Failed to redirect to Spotify playlist:", e);
+    }
+    navigate({ to: "/lab" });
+  };
+
   // Compute music personality details
   const getMusicPersonality = () => {
     if (!formData) return null;
@@ -125,54 +151,53 @@ function OnboardingWelcome() {
       }
     });
 
-    // Default archetypes
+    // Personalisation tokens
+    const firstName = formData?.personalDetails?.name?.split(" ")[0] || "";
+    const topArtist = formData?.selectedArtists?.[0] || "your favourite artist";
+    const topHabit = formData?.selectedHabits?.[0]?.toLowerCase() || "your daily moments";
+    const you = firstName ? `${firstName}, you` : "You";
+
     if (topPref === "Romantic" || topPref === "Poetic") {
       return {
         title: "THE ROMANTIC DREAMER",
-        description: `You gravitate toward soft acoustic details, strings, and sweeping vocal melodies.
+        description: `${you} gravitate toward soft acoustic details, strings, and sweeping vocal melodies — the kind ${topArtist} builds so effortlessly.
 
-You listen to music to amplify your feelings, to live in the imaginary spaces of lyrics.
+You listen to music to amplify your feelings, to live inside the imaginary spaces of lyrics.
 
-You notice the tiny, poetic details, and you carry them with you.`
+Whether you're ${topHabit} or simply breathing, you notice the tiny, poetic details — and you carry them everywhere.`
       };
     }
 
     if (topPref === "Confident" || topPref === "Storytelling") {
       return {
         title: "THE AMBITIOUS CREATOR",
-        description: `You look for energy, drive, and rhythm that match your pace.
+        description: `${you} look for energy, drive, and rhythm that match your pace — something ${topArtist} always delivers.
 
-Your songs are an engine of motivation, filled with bold baselines and clean, direct lyricism.
+Your songs are an engine of motivation, filled with bold basslines and clean, direct lyricism.
 
-You appreciate clever wordplay and rhythmic complexity that push boundaries.
-
-You listen to conquer the day.`
+When you're ${topHabit}, you need music that keeps up with you. You listen to conquer the day.`
       };
     }
 
     if (topPref === "Hopeful") {
       return {
         title: "THE HOPEFUL SEEKER",
-        description: `You seek out chord progressions and melodies that lift the spirit.
+        description: `${you} seek out melodies and chord progressions that lift the spirit — the kind ${topArtist} has built a whole world around.
 
-You enjoy upbeat tempos and positive messaging, using songs to light up darker days and guide your focus.
+You use music to light up darker days, especially during ${topHabit}.
 
-You believe that music has the power to heal and transform your mood.
-
-For you, every song represents a fresh start.`
+For you, every song represents a fresh start. You believe music has the power to heal.`
       };
     }
 
-    // Default/fallback is THE MIDNIGHT STORYTELLER (matches Reflective, Nostalgic, Heartbroken)
+    // Default/fallback — THE MIDNIGHT STORYTELLER
     return {
       title: "THE MIDNIGHT STORYTELLER",
-      description: `You gravitate toward songs that feel lived in.
+      description: `${you} gravitate toward songs that feel lived in — songs that ${topArtist} writes like they were meant only for you.
 
 You prefer emotional detail over loud production.
 
-You enjoy upbeat music with friends,
-but your most meaningful songs are reflective,
-romantic and nostalgic.
+While ${topHabit}, your most meaningful songs are reflective, romantic, and nostalgic.
 
 You don't listen to music to fill silence.
 
@@ -192,19 +217,8 @@ You listen to understand yourself.`
 
   if (!formData) {
     return (
-      <main className="min-h-screen bg-ivory text-ink flex items-center justify-center font-mono relative bg-cream-watermark">
-        <Nav />
-        <div className="text-center space-y-6 max-w-sm px-6">
-          <p className="font-sans text-sm text-ink/60">
-            No active taste profile details found. Please complete the login questionnaire page first.
-          </p>
-          <button
-            onClick={() => navigate({ to: "/login" })}
-            className="inline-block bg-wine text-white px-8 py-4.5 rounded-full font-mono text-[10px] uppercase tracking-widest cursor-pointer font-bold shadow-md"
-          >
-            Go to Questionnaire
-          </button>
-        </div>
+      <main className="min-h-screen bg-ivory text-ink flex items-center justify-center font-mono">
+        <p className="text-sm text-ink/50 animate-pulse">Redirecting...</p>
       </main>
     );
   }
@@ -225,7 +239,7 @@ You listen to understand yourself.`
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 w-full relative z-10 min-h-0">
           {/* Left Side: LISTEN */}
           <button
-            onClick={() => navigate({ to: "/lab" })}
+            onClick={handleListenClick}
             className="bg-ivory hover:bg-[#eae4d9] text-ink p-12 flex flex-col justify-center items-center text-center transition-all duration-500 group border-r border-ink/10 cursor-pointer outline-none relative"
           >
             <div className="space-y-4 max-w-md">

@@ -7,6 +7,8 @@ export interface TrackInfo {
   albumName: string;
   albumImage?: string;
   duration_ms: number;
+  preview_url?: string;
+  preview?: string;
 }
 
 export interface FrequenceMix {
@@ -170,7 +172,8 @@ export async function generateFrequenceMixes(): Promise<FrequenceMix[]> {
         artists: track.artists?.map((a: any) => a.name) || [],
         albumName: track.album?.name || "",
         albumImage: track.album?.images?.[0]?.url,
-        duration_ms: track.duration_ms
+        duration_ms: track.duration_ms,
+        preview_url: track.preview_url || track.preview
       };
 
       if (!features) {

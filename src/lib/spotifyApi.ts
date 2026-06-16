@@ -85,3 +85,44 @@ export async function getSpotifyProfile() {
   }
   return null;
 }
+
+export async function getSavedTracks() {
+  try {
+    const token = await getSpotifyToken();
+    if (!token) return { items: [] };
+
+    const response = await fetch("https://api.spotify.com/v1/me/tracks?limit=50", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      return response.json();
+    }
+  } catch (error) {
+    console.error("Failed to fetch Spotify saved tracks:", error);
+  }
+  return { items: [] };
+}
+
+export async function getTopTracks() {
+  try {
+    const token = await getSpotifyToken();
+    if (!token) return [];
+
+    const response = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=20", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.items || [];
+    }
+  } catch (error) {
+    console.error("Failed to fetch Spotify top tracks:", error);
+  }
+  return [];
+}
