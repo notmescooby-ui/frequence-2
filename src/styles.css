@@ -3,6 +3,13 @@
 @import "tailwindcss";
 @source "../src";
 
+@font-face {
+  font-family: 'Vonca';
+  src: url('./assets/fonts/vonca-regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 
@@ -34,8 +41,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-display: 'Lora', 'Instrument Serif', serif;
-  --font-sans: 'Outfit', 'Instrument Sans', sans-serif;
+  --font-display: 'Vonca', 'Lora', 'Instrument Serif', serif;
+  --font-sans: 'Vonca', 'Outfit', 'Instrument Sans', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 }
 
@@ -221,3 +228,25 @@
   z-index: 9998;
   background: radial-gradient(circle, transparent 55%, rgba(20, 20, 20, 0.05) 100%);
 }
+
+/* ── Specific font weight overrides: only titles are bold but not that bold ── */
+*, *::before, *::after {
+  font-weight: 400;
+}
+
+/* Remove bold weight from all labels, buttons, spans, and standard elements */
+.font-bold:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.font-display) {
+  font-weight: 400 !important;
+}
+
+.font-semibold:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(.font-display) {
+  font-weight: 400 !important;
+}
+
+/* Titles and headings should be semibold (medium-bold) but not that bold */
+h1, h2, h3, h4, h5, h6,
+h1 *, h2 *, h3 *, h4 *, h5 *, h6 *,
+.font-display.font-bold,
+.font-display.font-semibold {
+  font-weight: 500 !important; /* 500 is medium/semibold, which is perfectly readable and not blocky */
+}
