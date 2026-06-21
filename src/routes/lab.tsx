@@ -6,10 +6,9 @@ import {
 } from "lucide-react";
 import { useSpotifyPlaylists } from "@/hooks/useSpotifyPlaylists";
 import { useSpotifyProfile } from "@/hooks/useSpotifyProfile";
-import { supabase } from "@/lib/supabase";
-import { getTopTracks } from "@/lib/spotifyApi";
+import { getTopTracks, getTopArtists, getRecentlyPlayed } from "@/lib/spotifyApi";
 import { usePlayerStore } from "@/store/playerStore";
-
+import { supabase } from "@/lib/supabase";
 export const Route = createFileRoute("/lab")({
   head: () => ({
     meta: [
@@ -23,16 +22,7 @@ export const Route = createFileRoute("/lab")({
 /* =========================================================
  *  DATA
  * ========================================================= */
-const TOP_ARTISTS = ["Frank Ocean", "Sade", "Phoebe Bridgers", "Tyler", "Aphex Twin"];
-const TOP_TRACKS = [
-  { n: "01", t: "Pink + White", a: "Frank Ocean", d: "3:04" },
-  { n: "02", t: "By Your Side", a: "Sade", d: "4:35" },
-  { n: "03", t: "Motion Sickness", a: "Phoebe Bridgers", d: "4:01" },
-  { n: "04", t: "See You Again", a: "Tyler, The Creator", d: "3:00" },
-  { n: "05", t: "Avril 14th", a: "Aphex Twin", d: "2:05" },
-  { n: "06", t: "Self Control", a: "Frank Ocean", d: "4:09" },
-  { n: "07", t: "No Ordinary Love", a: "Sade", d: "7:21" },
-];
+
 const COMPOSITIONS = [
   { t: "Side Letter, no. III", time: "2:48" },
   { t: "Evening, in Rose", time: "3:14" },
@@ -108,20 +98,52 @@ export function LeftSidebar() {
     }
   };
 
-  const displayName = profile?.displayName || "Olive Marchetti";
-  const initials = profile?.initials || "OM";
+  const [topArtists, setTopArtists] = useState<any[]>([]);
+  const [artistsLoading, setArtistsLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getTopArtists();
+        setTopArtists(data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setArtistsLoading(false);
+      }
+    }
+    if (profile) {
+      load();
+    } else {
+      setTopArtists([]);
+      setArtistsLoading(false);
+    }
+  }, [profile]);
+
+  const displayName = profile?.displayName;
+  const initials = profile?.initials;
   const image = profile?.image;
-  const product = profile?.product ? `Spotify · ${profile.product.toUpperCase()}` : "Spotify · Premium";
+  const product = profile?.product ? `Spotify · ${profile.product.toUpperCase()}` : "Spotify";
 
   return (
     <aside className="bg-[var(--ivory)] p-6 flex flex-col gap-8 overflow-y-auto">
-      <div className="flex items-center gap-3">
-        <Avatar initials={initials} tone="#9B4D5E" size={44} image={image} />
-        <div>
-          <p className="font-display text-base leading-tight">{displayName}</p>
-          <p className="font-mono text-[9px] caps-wide text-[var(--ink)]/50">{product}</p>
+      {profile ? (
+        <div className="flex items-center gap-3">
+          <Avatar initials={initials || "OM"} tone="#9B4D5E" size={44} image={image} />
+          <div>
+            <p className="font-display text-base leading-tight">{displayName}</p>
+            <p className="font-mono text-[9px] caps-wide text-[var(--ink)]/50">{product}</p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex items-center gap-3 opacity-50">
+          <Avatar initials="?" tone="#9B4D5E" size={44} />
+          <div>
+            <p className="font-display text-base leading-tight">Not connected</p>
+            <p className="font-mono text-[9px] caps-wide text-[var(--ink)]/50">Spotify Session Inactive</p>
+          </div>
+        </div>
+      )}
 
       <div className="relative">
         <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--ink)]/40" />
@@ -220,14 +242,28 @@ export function LeftSidebar() {
 
       <div>
         <h3 className="font-mono text-[9px] caps-wide text-[var(--wine)] mb-4">Top 5 artists</h3>
-        <div className="space-y-3">
-          {TOP_ARTISTS.map((a, i) => (
-            <div key={a} className="flex items-center gap-3">
-              <Avatar initials={a.split(" ").map((w) => w[0]).slice(0,2).join("")} tone={["#1A1A1A","#9B4D5E","#3A2E2A","#6B4A4A","#1A1A1A"][i]} size={30} />
-              <span className="font-display text-sm">{a}</span>
-            </div>
-          ))}
-        </div>
+        {artistsLoading ? (
+          <p className="font-mono text-[9px] text-[var(--ink)]/50 italic">Loading top artists...</p>
+        ) : topArtists.length === 0 ? (
+          <p className="font-sans text-[11px] text-[var(--ink)]/50 italic">No top artists found.</p>
+        ) : (
+          <div className="space-y-3">
+            {topArtists.slice(0, 5).map((artist: any, i: number) => {
+              const image = artist.images?.[0]?.url;
+              return (
+                <div key={artist.id} className="flex items-center gap-3">
+                  <Avatar
+                    initials={artist.name.split(" ").map((w: any) => w[0]).slice(0, 2).join("")}
+                    tone={["#1A1A1A", "#9B4D5E", "#3A2E2A", "#6B4A4A", "#1A1A1A"][i % 5]}
+                    size={30}
+                    image={image}
+                  />
+                  <span className="font-display text-sm">{artist.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -266,17 +302,10 @@ function ListenerMode() {
     load();
   }, []);
 
-  const tracksToDisplay = topTracks.length > 0 ? topTracks : TOP_TRACKS.map((t, idx) => ({
-    id: `static-${idx}`,
-    name: t.t,
-    artists: [{ name: t.a }],
-    album: { name: "Frequence Album" },
-    duration_ms: (parseInt(t.d.split(":")[0]) * 60 + parseInt(t.d.split(":")[1])) * 1000,
-    preview_url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fd/1c/47/fd1c4794-fc22-0c5b-5633-5e982607a9f0/mzaf_1898092671939920039.plus.aac.p.m4a"
-  }));
+  const tracksToDisplay = topTracks;
 
   const activeTrackName = currentTrack?.name || "Side Letter, no. III";
-  const activeArtistName = currentTrack 
+  const activeArtistName = currentTrack
     ? (Array.isArray(currentTrack.artists) ? currentTrack.artists.map((a: any) => a.name).join(", ") : currentTrack.artists || "Spotify Artist")
     : "Frequence · Original Composition";
 
@@ -297,7 +326,7 @@ function ListenerMode() {
           </p>
 
           <div className="flex items-center gap-6">
-            <button 
+            <button
               onClick={() => usePlayerStore.getState().prevTrack()}
               disabled={!currentTrack}
               className="text-[var(--ink)] hover:text-[var(--wine)] disabled:opacity-30 transition-colors cursor-pointer"
@@ -318,7 +347,7 @@ function ListenerMode() {
             >
               {isPlaying && currentTrack ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
             </button>
-            <button 
+            <button
               onClick={() => usePlayerStore.getState().nextTrack()}
               disabled={!currentTrack}
               className="text-[var(--ink)] hover:text-[var(--wine)] disabled:opacity-30 transition-colors cursor-pointer"
@@ -335,25 +364,29 @@ function ListenerMode() {
           {topTracks.length > 0 ? "Your top tracks this month" : "Featured tracks"}
         </p>
         <div className="border-t border-[var(--ink)]/15">
-          {tracksToDisplay.map((t: any, index: number) => {
-            const min = Math.floor(t.duration_ms / 60000);
-            const sec = Math.floor((t.duration_ms % 60000) / 1000).toString().padStart(2, '0');
-            const duration = `${min}:${sec}`;
-            const isCurrent = currentTrack && currentTrack.id === t.id;
+          {tracksToDisplay.length === 0 ? (
+            <p className="font-sans text-xs text-[var(--ink)]/50 italic py-6">No top tracks loaded. Connect your Spotify account to sync your library.</p>
+          ) : (
+            tracksToDisplay.map((t: any, index: number) => {
+              const min = Math.floor(t.duration_ms / 60000);
+              const sec = Math.floor((t.duration_ms % 60000) / 1000).toString().padStart(2, '0');
+              const duration = `${min}:${sec}`;
+              const isCurrent = currentTrack && currentTrack.id === t.id;
 
-            return (
-              <div 
-                key={t.id} 
-                onClick={() => playTrack(t, tracksToDisplay)}
-                className={`grid grid-cols-[40px_1fr_1fr_60px] items-baseline gap-6 py-5 border-b border-[var(--ink)]/10 hover:bg-[var(--ink)]/[0.02] transition-colors group cursor-pointer ${isCurrent ? "bg-[var(--wine)]/[0.03]" : ""}`}
-              >
-                <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">{String(index + 1).padStart(2, '0')}</span>
-                <span className={`font-display text-lg group-hover:italic transition-all ${isCurrent ? "text-[var(--wine)] font-bold italic" : ""}`}>{t.name}</span>
-                <span className="font-mono text-[10px] caps-wide text-[var(--ink)]/60">{t.artists?.map((a: any) => a.name).join(", ")}</span>
-                <span className="font-mono text-[10px] text-[var(--ink)]/50 tabular text-right">{duration}</span>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={t.id}
+                  onClick={() => playTrack(t, tracksToDisplay)}
+                  className={`grid grid-cols-[40px_1fr_1fr_60px] items-baseline gap-6 py-5 border-b border-[var(--ink)]/10 hover:bg-[var(--ink)]/[0.02] transition-colors group cursor-pointer ${isCurrent ? "bg-[var(--wine)]/[0.03]" : ""}`}
+                >
+                  <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">{String(index + 1).padStart(2, '0')}</span>
+                  <span className={`font-display text-lg group-hover:italic transition-all ${isCurrent ? "text-[var(--wine)] font-bold italic" : ""}`}>{t.name}</span>
+                  <span className="font-mono text-[10px] caps-wide text-[var(--ink)]/60">{t.artists?.map((a: any) => a.name).join(", ")}</span>
+                  <span className="font-mono text-[10px] text-[var(--ink)]/50 tabular text-right">{duration}</span>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
@@ -456,11 +489,10 @@ function CreateWizard({
               <button
                 key={t}
                 onClick={() => pick(t)}
-                className={`h-44 border text-left p-6 transition-all duration-500 ${
-                  active
+                className={`h-44 border text-left p-6 transition-all duration-500 ${active
                     ? "border-[var(--wine)] bg-[var(--wine)]/5 -translate-y-1"
                     : "border-[var(--ink)]/20 hover:border-[var(--ink)] hover:-translate-y-1"
-                }`}
+                  }`}
               >
                 <p className="font-mono text-[9px] caps-wide text-[var(--ink)]/50">Form</p>
                 <p className="font-display font-medium text-3xl mt-3 tracking-[-0.02em] caps-wide">{t}</p>
@@ -487,17 +519,21 @@ export function RightPanel() {
 
 function ProfileCard() {
   const { profile } = useSpotifyProfile();
-  
-  const displayName = profile?.displayName || "Olive Marchetti";
-  const initials = profile?.initials || "OM";
-  const image = profile?.image;
-  const product = profile?.product ? `${profile.product.toUpperCase()} listener` : "Premium Listener";
+
+  const displayName = profile?.displayName;
+  const initials = profile?.initials;
+  const product = profile?.product;
 
   return (
     <div className="flex flex-col items-center text-center border border-[var(--ink)]/15 p-5">
-      <Avatar initials={initials} tone="#9B4D5E" size={60} image={image} />
-      <p className="font-display text-lg mt-3 leading-tight">{displayName}</p>
-      <p className="font-mono text-[9px] caps-wide text-[var(--wine)] mt-1">{product}</p>
+      {profile ? (
+        <>
+          <p>{displayName}</p>
+          <p>{product}</p>
+        </>
+      ) : (
+        <p>Not connected</p>
+      )}
     </div>
   );
 }
@@ -505,42 +541,65 @@ function ProfileCard() {
 function RecentPlaybacksList() {
   const playTrack = usePlayerStore((state) => state.playTrack);
   const currentTrack = usePlayerStore((state) => state.currentTrack);
-  
-  const playbacks = [
-    { id: "recent-1", name: "Pink + White", artists: [{ name: "Frank Ocean" }], duration_ms: 184000, preview_url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fd/1c/47/fd1c4794-fc22-0c5b-5633-5e982607a9f0/mzaf_1898092671939920039.plus.aac.p.m4a" },
-    { id: "recent-2", name: "By Your Side", artists: [{ name: "Sade" }], duration_ms: 275000, preview_url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3b/26/64/3b26645a-2c49-f0c7-fa6d-be6ad83b0ae9/mzaf_4194244291813253017.plus.aac.p.m4a" },
-    { id: "recent-3", name: "Motion Sickness", artists: [{ name: "Phoebe Bridgers" }], duration_ms: 241000, preview_url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/28/ad/eb/28adeb53-5969-35a0-e136-28767f0d6144/mzaf_15250745364174301370.plus.aac.p.m4a" },
-    { id: "recent-4", name: "Self Control", artists: [{ name: "Frank Ocean" }], duration_ms: 249000, preview_url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1b/c2/27/1bc227d3-b62c-abac-a619-696cd61f7c03/mzaf_3279216438664612903.plus.aac.p.m4a" },
-  ];
+  const [playbacks, setPlaybacks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const items = await getRecentlyPlayed();
+        const mapped = items.map((item: any, idx: number) => ({
+          id: item.track.id || `recent-${idx}`,
+          name: item.track.name,
+          artists: item.track.artists,
+          duration_ms: item.track.duration_ms,
+          preview_url: item.track.preview_url || item.track.preview
+        }));
+        setPlaybacks(mapped);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
   return (
     <div>
       <h3 className="font-mono text-[9px] caps-wide text-[var(--ink)]/60 mb-5">Recent Playbacks</h3>
-      <ul className="space-y-5">
-        {playbacks.map((p) => {
-          const isCurrent = currentTrack && currentTrack.id === p.id;
-          const min = Math.floor(p.duration_ms / 60000);
-          const sec = Math.floor((p.duration_ms % 60000) / 1000).toString().padStart(2, '0');
-          const time = `${min}:${sec}`;
-          
-          return (
-            <li key={p.id} className="border-b border-[var(--ink)]/10 pb-5">
-              <p className={`font-display text-base leading-tight mb-1 ${isCurrent ? "text-[var(--wine)] font-bold" : ""}`}>{p.name}</p>
-              <p className="font-mono text-[10px] text-[var(--ink)]/55">{p.artists[0].name}</p>
-              <div className="flex items-center justify-between mt-3">
-                <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">{time}</span>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => playTrack(p, playbacks)}
-                    className="text-[var(--ink)]/60 hover:text-[var(--wine)] font-mono text-[10px] caps-wide transition-colors cursor-pointer"
-                  >
-                    Play
-                  </button>
+      {loading ? (
+        <p className="font-mono text-[9px] text-[var(--ink)]/50 italic">Retrieving recent playbacks...</p>
+      ) : playbacks.length === 0 ? (
+        <p className="font-sans text-[11px] text-[var(--ink)]/50 italic">No recent playbacks found.</p>
+      ) : (
+        <ul className="space-y-5">
+          {playbacks.map((p) => {
+            const isCurrent = currentTrack && currentTrack.id === p.id;
+            const min = Math.floor(p.duration_ms / 60000);
+            const sec = Math.floor((p.duration_ms % 60000) / 1000).toString().padStart(2, '0');
+            const time = `${min}:${sec}`;
+
+            return (
+              <li key={p.id} className="border-b border-[var(--ink)]/10 pb-5">
+                <p className={`font-display text-base leading-tight mb-1 ${isCurrent ? "text-[var(--wine)] font-bold" : ""}`}>{p.name}</p>
+                <p className="font-mono text-[10px] text-[var(--ink)]/55">{p.artists?.[0]?.name || "Unknown Artist"}</p>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="font-mono text-[10px] text-[var(--ink)]/40 tabular">{time}</span>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => playTrack(p, playbacks)}
+                      className="text-[var(--ink)]/60 hover:text-[var(--wine)] font-mono text-[10px] caps-wide transition-colors cursor-pointer"
+                    >
+                      Play
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -559,10 +618,10 @@ export function BottomPlayer() {
   const { currentTrack, isPlaying, progress, duration, togglePlay, nextTrack, prevTrack, seek } = usePlayerStore();
 
   const trackName = currentTrack?.name || "Side Letter, no. III";
-  const artistName = currentTrack 
+  const artistName = currentTrack
     ? (Array.isArray(currentTrack.artists) ? currentTrack.artists.map((a: any) => a.name).join(", ") : currentTrack.artists || "Spotify Artist")
     : "Frequence · Original Composition";
-  
+
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -588,7 +647,7 @@ export function BottomPlayer() {
 
       <div className="flex-1 flex flex-col items-center gap-2">
         <div className="flex items-center gap-5">
-          <button 
+          <button
             onClick={prevTrack}
             disabled={!currentTrack}
             className="text-[var(--ink)]/70 hover:text-[var(--ink)] disabled:opacity-30 transition-colors cursor-pointer"
@@ -602,7 +661,7 @@ export function BottomPlayer() {
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
           </button>
-          <button 
+          <button
             onClick={nextTrack}
             disabled={!currentTrack}
             className="text-[var(--ink)]/70 hover:text-[var(--ink)] disabled:opacity-30 transition-colors cursor-pointer"
@@ -612,7 +671,7 @@ export function BottomPlayer() {
         </div>
         <div className="w-full max-w-xl flex items-center gap-3">
           <span className="font-mono text-[9px] text-[var(--ink)]/50 tabular">{formatTime(progress)}</span>
-          <div 
+          <div
             onClick={handleProgressBarClick}
             className="relative flex-1 h-1 bg-[var(--ink)]/20 cursor-pointer rounded-full hover:h-2 transition-all flex items-center"
           >
@@ -656,3 +715,4 @@ export function Avatar({ initials, tone, size, image }: { initials: string; tone
     </div>
   );
 }
+

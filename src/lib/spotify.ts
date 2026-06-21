@@ -5,21 +5,9 @@ export async function getSpotifyToken() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const sessionToken = session?.provider_token;
-  if (sessionToken) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("spotify_provider_token", sessionToken);
-    }
-    return sessionToken;
-  }
+  console.log("SESSION:", session);
+  console.log("PROVIDER TOKEN:", session?.provider_token);
 
-  if (typeof window !== "undefined") {
-    const localToken = localStorage.getItem("spotify_provider_token");
-    if (localToken) {
-      return localToken;
-    }
-  }
-
-  return null;
+  return session?.provider_token ?? null;
 }
 

@@ -126,3 +126,45 @@ export async function getTopTracks() {
   }
   return [];
 }
+
+export async function getTopArtists() {
+  try {
+    const token = await getSpotifyToken();
+    if (!token) return [];
+
+    const response = await fetch("https://api.spotify.com/v1/me/top/artists?limit=10", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.items || [];
+    }
+  } catch (error) {
+    console.error("Failed to fetch Spotify top artists:", error);
+  }
+  return [];
+}
+
+export async function getRecentlyPlayed() {
+  try {
+    const token = await getSpotifyToken();
+    if (!token) return [];
+
+    const response = await fetch("https://api.spotify.com/v1/me/player/recently-played?limit=20", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.items || [];
+    }
+  } catch (error) {
+    console.error("Failed to fetch Spotify recently played:", error);
+  }
+  return [];
+}
