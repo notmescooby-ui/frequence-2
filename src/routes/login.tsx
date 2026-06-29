@@ -260,19 +260,30 @@ function Login() {
 
   const handleLogin = async (provider: "google" | "spotify") => {
     try {
-      const options: any = {
-        redirectTo: `${window.location.origin}/onboarding`,
-      };
-
       if (provider === "spotify") {
-        options.scopes = "playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played";
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "spotify",
+          options: {
+            scopes:
+              "playlist-read-private playlist-read-collaborative user-library-read user-top-read user-read-recently-played",
+            redirectTo: `${window.location.origin}/lab`,
+          },
+        });
+
+        if (error) throw error;
+        return;
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options,
-      });
-      if (error) throw error;
+      if (provider === "google") {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/onboarding`,
+          },
+        });
+
+        if (error) throw error;
+      }
     } catch (err) {
       console.error("Login failed:", err);
     }
