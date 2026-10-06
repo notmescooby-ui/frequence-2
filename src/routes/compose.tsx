@@ -1,5 +1,5 @@
 
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/compose")({
     component: Compose,
@@ -29,15 +29,6 @@ export default function Compose() {
                         </div>
                     ))}
                 </div>
-
-                <Link
-                    to="/scratch"
-                    className="mt-12 inline-flex border border-[var(--wine)] px-6 py-4 hover:bg-[var(--wine)] transition-colors"
-                >
-                    <span className="font-mono text-[10px] uppercase tracking-[0.22em] hover:text-white">
-                        Open Scratch Studio →
-                    </span>
-                </Link>
             </aside>
 
             {/* CENTER */}

@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ScratchRouteImport } from './routes/scratch'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LabRouteImport } from './routes/lab'
@@ -21,11 +20,6 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlaylistIdRouteImport } from './routes/playlist.$id'
 
-const ScratchRoute = ScratchRouteImport.update({
-  id: '/scratch',
-  path: '/scratch',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -87,7 +81,6 @@ export interface FileRoutesByFullPath {
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
-  '/scratch': typeof ScratchRoute
   '/playlist/$id': typeof PlaylistIdRoute
 }
 export interface FileRoutesByTo {
@@ -100,7 +93,6 @@ export interface FileRoutesByTo {
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
-  '/scratch': typeof ScratchRoute
   '/playlist/$id': typeof PlaylistIdRoute
 }
 export interface FileRoutesById {
@@ -114,7 +106,6 @@ export interface FileRoutesById {
   '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
-  '/scratch': typeof ScratchRoute
   '/playlist/$id': typeof PlaylistIdRoute
 }
 export interface FileRouteTypes {
@@ -129,7 +120,6 @@ export interface FileRouteTypes {
     | '/lab'
     | '/login'
     | '/onboarding'
-    | '/scratch'
     | '/playlist/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -142,7 +132,6 @@ export interface FileRouteTypes {
     | '/lab'
     | '/login'
     | '/onboarding'
-    | '/scratch'
     | '/playlist/$id'
   id:
     | '__root__'
@@ -155,7 +144,6 @@ export interface FileRouteTypes {
     | '/lab'
     | '/login'
     | '/onboarding'
-    | '/scratch'
     | '/playlist/$id'
   fileRoutesById: FileRoutesById
 }
@@ -169,19 +157,11 @@ export interface RootRouteChildren {
   LabRoute: typeof LabRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
-  ScratchRoute: typeof ScratchRoute
   PlaylistIdRoute: typeof PlaylistIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/scratch': {
-      id: '/scratch'
-      path: '/scratch'
-      fullPath: '/scratch'
-      preLoaderRoute: typeof ScratchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -265,7 +245,6 @@ const rootRouteChildren: RootRouteChildren = {
   LabRoute: LabRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
-  ScratchRoute: ScratchRoute,
   PlaylistIdRoute: PlaylistIdRoute,
 }
 export const routeTree = rootRouteImport

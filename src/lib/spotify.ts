@@ -5,9 +5,5 @@ export async function getSpotifyToken() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  console.log("SESSION:", session);
-  console.log("PROVIDER TOKEN:", session?.provider_token);
-
   return session?.provider_token ?? null;
 }
-

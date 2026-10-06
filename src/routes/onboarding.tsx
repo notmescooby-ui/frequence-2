@@ -257,7 +257,7 @@ You listen to understand yourself.`
 
           {/* Right Side: COMPOSE */}
           <button
-            onClick={() => setOnboardingStep(3)}
+            onClick={() => navigate({ to: "/compose" })}
             className="bg-ink hover:bg-[#1a1a1a]/95 text-ivory p-12 flex flex-col justify-center items-center text-center transition-all duration-500 group cursor-pointer outline-none relative"
           >
             <div className="space-y-4 max-w-md">
@@ -268,72 +268,9 @@ You listen to understand yourself.`
                 Compose
               </h2>
               <p className="font-sans text-sm text-ivory/60 leading-relaxed font-medium mt-2">
-                Build original music compositions. Craft arrangements from scratch or co-create using emotional AI generation tools.
+                Turn a feeling into an original song. Describe what it feels like, shape the lyrics, and let FREQUENCE compose it with you.
               </p>
             </div>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (onboardingStep === 3) {
-    return (
-      <div className="min-h-screen bg-ivory text-ink flex flex-col relative bg-cream-watermark select-none">
-        {/* Header containing blended logo */}
-        <header className="w-full flex justify-center py-6 bg-transparent flex-shrink-0 relative z-25 border-b border-ink/5">
-          <img
-            src={frequenceLogo}
-            alt="FREQUENCE Logo"
-            className="w-auto object-contain select-none transition-all duration-300 hover:scale-105"
-            style={{ height: '160px' }}
-          />
-        </header>
-
-        {/* 50/50 Split Screen below Logo */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 w-full relative z-10 min-h-0">
-          {/* Left Side: SCRATCH */}
-          <button
-            onClick={() => navigate({ to: "/scratch" })}
-            className="bg-ivory hover:bg-[#eae4d9] text-ink p-12 flex flex-col justify-center items-center text-center transition-all duration-500 group border-r border-ink/10 cursor-pointer outline-none relative"
-          >
-            <div className="space-y-4 max-w-md">
-              <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-wine font-bold group-hover:scale-105 transition-transform block">
-                Arranger
-              </span>
-              <h2 className="font-display italic text-4xl md:text-5xl font-bold tracking-tight text-ink group-hover:underline decoration-wine underline-offset-8 transition-all">
-                Scratch Studio
-              </h2>
-              <p className="font-sans text-sm text-ink/60 leading-relaxed font-medium mt-2">
-                Jump into our interactive DAW environment. Arrange audio clips on a timeline grid, adjust track parameters, and export high-fidelity WAV compositions.
-              </p>
-            </div>
-          </button>
-
-          {/* Right Side: AI GENERATION */}
-          <button
-            onClick={() => navigate({ to: "/compose" })}
-            className="bg-ink hover:bg-[#1a1a1a]/95 text-ivory p-12 flex flex-col justify-center items-center text-center transition-all duration-500 group cursor-pointer outline-none relative"
-          >
-            <div className="space-y-4 max-w-md">
-              <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-rose font-bold group-hover:scale-105 transition-transform block">
-                Guided
-              </span>
-              <h2 className="font-display italic text-4xl md:text-5xl font-bold tracking-tight text-ivory group-hover:underline decoration-rose underline-offset-8 transition-all">
-                AI Generation
-              </h2>
-              <p className="font-sans text-sm text-ivory/60 leading-relaxed font-medium mt-2">
-                Guided songwriting using emotional triggers. Shape structures, mood maps, and lyrical flows, and let FREQUENCE compose for you.
-              </p>
-            </div>
-          </button>
-
-          {/* Back button overlay */}
-          <button
-            onClick={() => setOnboardingStep(2)}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-wine text-white px-8 py-3 rounded-full font-mono text-[9px] uppercase tracking-widest cursor-pointer font-bold shadow-md hover:bg-wine/90 transition-all z-30 animate-pulse"
-          >
-            ← Back to Options
           </button>
         </div>
       </div>

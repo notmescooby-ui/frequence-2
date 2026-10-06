@@ -62,19 +62,6 @@ const STRUCTURE_TILES = ["Verse-heavy", "Chorus anthem", "Bridge-forward", "Loop
  *  PAGE
  * ========================================================= */
 function Lab() {
-  useEffect(() => {
-    async function testSession() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      console.log("SESSION:", session);
-      console.log("TOKEN:", session?.provider_token);
-    }
-
-    testSession();
-  }, []);
-
   return (
     <>
       <Nav />
